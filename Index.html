@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Subject Line Grader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F5F5DC; /* Cream */
+            color: #4B2E1A; /* Brown */
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #8B4513; /* Darker Brown */
+            border-radius: 10px;
+            background-color: #FFF5E1; /* Lighter Cream */
+        }
+        h1 {
+            text-align: center;
+            color: #DAA520; /* Golden */
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #8B4513; /* Darker Brown */
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #FF8C00; /* Orange */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #FF4500; /* Darker Orange */
+        }
+        .feedback, .rewrite, .examples {
+            margin-top: 20px;
+        }
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4B2E1A; /* Brown */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Email Subject Line Grader</h1>
+        <div class="welcome-message">
+            Welcome! Start typing your email subject line in the text box below to get started.
+        </div>
+        <textarea id="subjectLine" placeholder="Enter your email subject line here..."></textarea>
+        <button onclick="gradeSubjectLine()">Grade</button>
+        <div class="feedback" id="feedback"></div>
+        <div class="rewrite" id="rewrite"></div>
+        <div class="examples" id="examples"></div>
+    </div>
+
+    <script>
+        const spamWords = ['discount', 'join million', 'act now', 'increase', 'bargain', 'money', 'attention', 'free', 'rates', 'billion', 'trial', 'success', 'fast cash'];
+
+        function gradeSubjectLine() {
+            const subjectLine = document.getElementById('subjectLine').value.trim();
+            let feedback = '';
+            let grade = 100;
+
+            if (subjectLine.length === 0) {
+                feedback = 'Please enter a subject line.';
+                grade = 0;
+            } else {
+                const issues = [];
+                
+                // Length check
+                if (subjectLine.length < 10) {
+                    issues.push('Too short. Aim for at least 10 characters.');
+                    grade -= 20;
+                } else if (subjectLine.length > 50) {
+                    issues.push('Too long. Aim for less than 50 characters.');
+                    grade -= 10;
+                }
+
+                // Punctuation check
+                if (!/[?!]/.test(subjectLine)) {
+                    issues.push('Consider adding a question or exclamation mark to increase engagement.');
+                    grade -= 10;
+                }
+
+                // Numbers check
+                if (!/\d/.test(subjectLine)) {
+                    issues.push('Consider adding numbers to make it more specific.');
+                    grade -= 10;
+                }
+
+                // Personalization check
+                if (!/\b(?:you|your|yours)\b/i.test(subjectLine)) {
+                    issues.push('Personalize with words like "you" or "your" for better engagement.');
+                    grade -= 10;
+                }
+
+                // Spam trigger words check
+                if (spamWords.some(word => subjectLine.toLowerCase().includes(word))) {
+                    issues.push('Avoid using spam trigger words.');
+                    grade -= 20;
+                }
+
+                // Clear CTA check
+                if (!/\b(?:click|buy|shop|register|download|sign up)\b/i.test(subjectLine)) {
+                    issues.push('Include a clear call-to-action (e.g., click, buy, register).');
+                    grade -= 10;
+                }
+
+                // Emotional and curiosity elements
+                if (!/\b(?:discover|secret|unlock|surprising|hidden)\b/i.test(subjectLine)) {
+                    issues.push('Consider adding words that evoke emotion or curiosity.');
+                    grade -= 10;
+                }
+
+                feedback = issues.join('<br>');
+                if (feedback === '') {
+                    feedback = 'Great job! Your subject line looks good.';
+                }
+            }
+
+            document.getElementById('feedback').innerHTML = `<strong>Grade:</strong> ${grade}/100<br>${feedback}`;
+            document.getElementById('rewrite').innerHTML = `<button onclick="rewriteSubjectLine('${subjectLine}')">Rewrite Subject Line</button>`;
+            displayExamples();
+        }
+
+        function rewriteSubjectLine(subjectLine) {
+            let newSubjectLine = subjectLine;
+
+            // Punctuation check
+            if (!/[?!]/.test(subjectLine)) {
+                newSubjectLine += '?';
+            }
+
+            // Numbers check
+            if (!/\d/.test(subjectLine)) {
+                newSubjectLine = '10 Reasons to ' + newSubjectLine;
+            }
+
+            // Length check
+            if (newSubjectLine.length < 10) {
+                newSubjectLine += ' - Must Read!';
+            } else if (newSubjectLine.length > 50) {
+                newSubjectLine = newSubjectLine.slice(0, 47) + '...';
+            }
+
+            // Personalization check
+            if (!/\b(?:you|your|yours)\b/i.test(subjectLine)) {
+                newSubjectLine = 'Your ' + newSubjectLine;
+            }
+
+            // Spam words replacement
+            if (spamWords.some(word => newSubjectLine.toLowerCase().includes(word))) {
+                newSubjectLine = newSubjectLine.replace(new RegExp(spamWords.join('|'), 'gi'), 'awesome');
+            }
+
+            // CTA check
+            if (!/\b(?:click|buy|shop|register|download|sign up)\b/i.test(subjectLine)) {
+                newSubjectLine += ' - Click to Learn More';
+            }
+
+            // Emotional and curiosity elements
+            if (!/\b(?:discover|secret|unlock|surprising|hidden)\b/i.test(subjectLine)) {
+                newSubjectLine = 'Discover: ' + newSubjectLine;
+            }
+
+            document.getElementById('subjectLine').value = newSubjectLine;
+            gradeSubjectLine();
+        }
+
+        function displayExamples() {
+            const examples = `
+                <h3>Quality Subject Line Examples:</h3>
+                <ul>
+                    <li>How to eliminate stress in 10 days?</li>
+                    <li>The secret to overcoming procrastination</li>
+                    <li>Are you ready for a new adventure?</li>
+                    <li>Discover the hidden benefits of yoga</li>
+                    <li>Don't miss our exclusive offer!</li>
+                </ul>
+            `;
+            document.getElementById('examples').innerHTML = examples;
+        }
+    </script>
+</body>
+</html>
+
+
